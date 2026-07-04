@@ -1,6 +1,12 @@
 import express from "express";
 import connectDb from "./config/dbConfig.js";
 import dotenv from "dotenv";
+import path from "path";
+import { fileURLToPath } from "url";
+import fs from "fs";
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // local imports
 import errorHandler from "./middleware/errorHandler.js";
@@ -25,13 +31,6 @@ connectDb();
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
-// ✅ TEST ROUTE
-app.get("/", (req, res) => {
-  res.json({
-    message: "Welcome to Finance Tracker API 1.0 😉",
-  });
-});
-
 // ✅ ROUTES
 app.use("/api/auth", authRoute);
 app.use("/api/income", incomeRoute);
@@ -42,6 +41,19 @@ app.use("/api/ai", aiRoute);
 app.use("/api/goal", goalRoute)
 app.use("/api/budget", budgetRoute)
 app.use("/api/feed", feedRoute)
+
+// ✅ SERVE STATIC FRONTEND IN PRODUCTION
+const clientBuildPath = path.join(__dirname, "../client/dist");
+if (fs.existsSync(clientBuildPath)) {
+  app.use(express.static(clientBuildPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(clientBuildPath, "index.html"));
+  });
+} else {
+  app.get("/", (req, res) => {
+    res.json({ message: "Welcome to Finance Tracker API 1.0 😉 (Dev Mode)" });
+  });
+}
 
 // ✅ ERROR HANDLER (ALWAYS LAST)
 app.use(errorHandler);

@@ -6,7 +6,8 @@
   "type": "module",
   "scripts": {
     "start": "node server/server.js",
-    "dev": "node --env-file=.env --watch server/server.js"
+    "dev": "node --env-file=.env --watch server/server.js",
+    "build": "npm install --prefix client && npm run build --prefix client"
   },
   "author": "",
   "license": "ISC",
