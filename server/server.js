@@ -46,8 +46,12 @@ app.use("/api/feed", feedRoute)
 const clientBuildPath = path.join(__dirname, "../client/dist");
 if (fs.existsSync(clientBuildPath)) {
   app.use(express.static(clientBuildPath));
-  app.get("*", (req, res) => {
-    res.sendFile(path.join(clientBuildPath, "index.html"));
+  app.use((req, res, next) => {
+    if (req.method === "GET" && !req.path.startsWith("/api")) {
+      res.sendFile(path.join(clientBuildPath, "index.html"));
+    } else {
+      next();
+    }
   });
 } else {
   app.get("/", (req, res) => {
